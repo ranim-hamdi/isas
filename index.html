@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISAAS Sfax | Quiz interactif</title>
+<meta name="description" content="Quiz interactif pour découvrir l’ISAAS Sfax : formations, départements et vie universitaire.">
+<style>
+:root{
+  --bg:#0b1020; --panel:#121a30; --panel2:#182441; --text:#eef3ff;
+  --muted:#aab7d4; --accent:#73e0c1; --accent2:#8aa8ff; --border:#2b395c;
+  --good:#65d6a4; --bad:#ff8795; --gold:#f3c969;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:radial-gradient(ellipse at top left,#1b3155 0%,transparent 42%),
+             radial-gradient(ellipse at bottom right,#173c42 0%,transparent 35%),var(--bg);
+  line-height:1.55;
+}
+header{padding:26px 18px 34px;text-align:center;position:relative;isolation:isolate;overflow:hidden}
+header:before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(180deg,rgba(8,13,27,.38),#0b1020 96%),url('https://www.histoiredesfax.com/wp-content/uploads/2019/03/isaas.jpg') center 48%/cover no-repeat;opacity:.78}
+header:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,rgba(7,14,30,.42),rgba(7,14,30,.15))}
+.brand{display:flex;align-items:center;justify-content:center;gap:13px;margin:0 auto 22px;max-width:900px}
+.brand img{width:66px;height:66px;object-fit:contain;background:#fff;border-radius:18px;padding:5px;box-shadow:0 8px 30px #0004}
+.brand-name{text-align:left;font-weight:800;letter-spacing:.05em;font-size:.9rem}
+.brand-name small{display:block;color:#d4def5;font-weight:500;letter-spacing:.02em;margin-top:3px}
+.hero-pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #ffffff45;background:#0b10208c;padding:7px 13px;border-radius:99px;font-size:.78rem;color:#eaf2ff;backdrop-filter:blur(8px)}
+
+.kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:.75rem;font-weight:800}
+h1{font-size:clamp(2.2rem,6vw,4.1rem);line-height:1.05;margin:15px 0;text-shadow:0 5px 24px #0008;letter-spacing:-.04em}
+header p{color:#e0e8fb;max-width:680px;margin:14px auto;font-size:1.03rem}
+.wrap{width:min(920px,calc(100% - 28px));margin:0 auto 50px}
+.intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 22px}
+.info-tile{padding:16px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(145deg,#172440eF,#10182beF);box-shadow:0 10px 25px #0002}
+.info-tile .emoji{font-size:1.35rem}
+.info-tile strong{display:block;margin:7px 0 2px}
+.info-tile span{display:block;color:var(--muted);font-size:.84rem}
+.section-label{color:var(--accent);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;margin:24px 0 8px}
+.quiz-intro{display:flex;align-items:center;gap:12px;margin:18px 0 10px}
+.quiz-intro h2{font-size:1.25rem;margin:0}
+.quiz-intro p{margin:3px 0 0;color:var(--muted);font-size:.9rem}
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.progress-shell{height:8px;background:#202b47;border-radius:99px;overflow:hidden;flex:1;min-width:180px}
+#progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}
+.counter{color:var(--muted);font-size:.9rem;white-space:nowrap}
+.question-card{background:linear-gradient(145deg,rgba(24,36,65,.97),rgba(15,23,43,.98));border:1px solid var(--border);border-radius:20px;padding:24px;margin:14px 0;box-shadow:0 12px 35px #0002;transition:border-color .2s,transform .2s}
+.question-card:hover{border-color:#435987;transform:translateY(-1px)}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{display:grid;place-items:center;min-width:38px;height:38px;border-radius:12px;background:#233455;color:var(--accent);font-weight:800}
+h2{font-size:1.08rem;margin:3px 0 8px}
+.type{font-size:.76rem;color:var(--muted);margin-bottom:14px}
+.options{display:grid;gap:9px}
+.option{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#0d1528;cursor:pointer;transition:.15s}
+.option:hover{border-color:#6078a8;background:#14213b}
+.option:focus-within{outline:2px solid var(--accent2);outline-offset:2px}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.option input{accent-color:var(--accent);margin-top:5px;flex-shrink:0}
+.option:has(input:checked){border-color:var(--accent);background:#16303a}
+.feedback{display:none;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:.9rem}
+.feedback.show{display:block}
+.feedback.good{background:#14352f;color:#a8f3d2}
+.feedback.bad{background:#3a202d;color:#ffc1ca}
+.note{color:var(--muted);font-size:.85rem;margin:10px 0 0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer;font-size:.95rem;transition:transform .18s,filter .18s}
+.primary{background:var(--accent);color:#09221d}
+.secondary{background:#202d4b;color:var(--text);border:1px solid var(--border)}
+button:hover{filter:brightness(1.07);transform:translateY(-1px)}
+#result{display:none;background:linear-gradient(135deg,#183a3a,#1a2b4a);border:1px solid #3e766e;border-radius:20px;padding:24px;margin:20px 0}
+#result h2{font-size:1.5rem}
+.score{font-size:2.5rem;font-weight:900;color:var(--accent)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 18px 28px}
+@media(max-width:560px){header{padding-top:24px}.question-card{padding:17px}.qhead{gap:9px}.num{min-width:33px;height:33px}.intro-grid{grid-template-columns:1fr}.brand img{width:54px;height:54px}.brand-name{font-size:.78rem}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="https://isaas.rnu.tn/images/social-networks-integrations/og_image_default.jpg" alt="Logo officiel de l’ISAAS" onerror="this.style.display='none'">
+    <div class="brand-name">UNIVERSITÉ DE SFAX<small>Institut Supérieur d’Administration des Affaires</small></div>
+  </div>
+  <div class="hero-pill">✦ QUIZ INTERACTIF · ÉDITION ÉTUDIANTE</div>
+  <h1>Découvre l’ISAAS</h1>
+  <p>Prêt·e à tester tes connaissances ? Explore les formations, les départements et la vie universitaire de l’ISAAS Sfax à travers 11 questions.</p>
+</header>
+<main class="wrap">
+  <section class="intro-grid" aria-label="Informations sur l’ISAAS">
+    <div class="info-tile"><div class="emoji">📍</div><strong>Sfax, Tunisie</strong><span>Route de l’aéroport, km 4</span></div>
+    <div class="info-tile"><div class="emoji">🎓</div><strong>Fondé en 2001</strong><span>Enseignement supérieur et recherche</span></div>
+    <div class="info-tile"><div class="emoji">💡</div><strong>Gestion & numérique</strong><span>Économie, gestion et informatique</span></div>
+  </section>
+  <div class="quiz-intro"><div><div class="section-label">À toi de jouer</div><h2>Le quiz ISAAS</h2><p>Choisis tes réponses, puis corrige le quiz pour découvrir ton score.</p></div></div>
+  <div class="topbar">
+    <div class="progress-shell"><div id="progress"></div></div>
+    <div class="counter"><span id="answered">0</span> / 11 questions répondues</div>
+  </div>
+
+  <form id="quiz">
+    <section class="question-card" data-correct="A" data-explain="ISAAS signifie Institut Supérieur d’Administration des Affaires de Sfax.">
+      <div class="qhead"><div class="num">01</div><div><h2>Quel est le nom complet de l’ISAAS ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q1" value="A"><span>Institut Supérieur d’Administration des Affaires de Sfax</span></label>
+        <label class="option"><input type="radio" name="q1" value="B"><span>Institut Supérieur des Arts Appliqués de Sfax</span></label>
+        <label class="option"><input type="radio" name="q1" value="C"><span>Institut des Sciences Administratives et Sociales de Sfax</span></label>
+        <label class="option"><input type="radio" name="q1" value="D"><span>Institut Supérieur d’Analyse et de Statistique de Sfax</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="B" data-explain="L’ISAAS est situé à Sfax, sur la route de l’aéroport, km 4.">
+      <div class="qhead"><div class="num">02</div><div><h2>Dans quelle ville se trouve l’ISAAS ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q2" value="A"><span>Tunis</span></label>
+        <label class="option"><input type="radio" name="q2" value="B"><span>Sfax</span></label>
+        <label class="option"><input type="radio" name="q2" value="C"><span>Sousse</span></label>
+        <label class="option"><input type="radio" name="q2" value="D"><span>Monastir</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="C" data-explain="Le premier quiz indiquait 25 places, mais ce chiffre doit être vérifié dans le guide officiel d’orientation 2026 : les chiffres d’admission peuvent varier selon la session et la source.">
+      <div class="qhead"><div class="num">03</div><div><h2>Dans le premier quiz, combien de places avait-on indiqué pour la Licence en Informatique de Gestion en 2026 ?</h2><div class="type">Choix unique • chiffre du quiz précédent, à vérifier dans le guide officiel</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q3" value="A"><span>15 places</span></label>
+        <label class="option"><input type="radio" name="q3" value="B"><span>40 places</span></label>
+        <label class="option"><input type="radio" name="q3" value="C"><span>25 places</span></label>
+        <label class="option"><input type="radio" name="q3" value="D"><span>60 places</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="A,C,D" data-explain="Les trois licences citées sont l’Informatique de Gestion, les Sciences de Gestion et les Sciences Économiques.">
+      <div class="qhead"><div class="num">04</div><div><h2>Quelles sont les trois licences principales proposées à l’ISAAS ?</h2><div class="type">Choix multiple • sélectionne toutes les bonnes réponses</div></div></div>
+      <div class="options">
+        <label class="option"><input type="checkbox" name="q4" value="A"><span>Licence en Informatique de Gestion</span></label>
+        <label class="option"><input type="checkbox" name="q4" value="B"><span>Licence en Médecine</span></label>
+        <label class="option"><input type="checkbox" name="q4" value="C"><span>Licence en Sciences de Gestion</span></label>
+        <label class="option"><input type="checkbox" name="q4" value="D"><span>Licence en Sciences Économiques</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="B" data-explain="Dans le système LMD, une licence se prépare normalement en trois ans.">
+      <div class="qhead"><div class="num">05</div><div><h2>Combien d’années dure normalement une licence dans le système LMD ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q5" value="A"><span>Deux ans</span></label>
+        <label class="option"><input type="radio" name="q5" value="B"><span>Trois ans</span></label>
+        <label class="option"><input type="radio" name="q5" value="C"><span>Quatre ans</span></label>
+        <label class="option"><input type="radio" name="q5" value="D"><span>Cinq ans</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="B" data-explain="l'année l’ISAAS a-t-il été créé: en 2001 .">
+      <div class="qhead"><div class="num">06</div><div><h2>En quelle année l’ISAAS a-t-il été créé ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q6" value="A"><span>En 1998</span></label>
+        <label class="option"><input type="radio" name="q6" value="B"><span>En 2001</span></label>
+        <label class="option"><input type="radio" name="q6" value="C"><span>En 2005</span></label>
+        <label class="option"><input type="radio" name="q6" value="D"><span>En 2010</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="false" data-explain="Quel est le nom de la directrice mentionnée sur la page officielle « Qui sommes-nous ? » de l’ISAAS : yosra mnif sallemi.">
+      <div class="qhead"><div class="num">07</div><div><h2>Quel est le nom de la directrice mentionnée sur la page officielle « Qui sommes-nous ? » de l’ISAAS ?</h2><div class="type"></div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q7" value="true"><span>Sonia Ghorbel Zouari</span></label>
+        <label class="option"><input type="radio" name="q7" value="false"><span>Yosra Mnif Sallemi</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="false" data-explain="Combien d’étudiants étaient inscrits en licence à l’ISAAS Sfax durant l’année universitaire 2023–2024 : c'est 1816 . ">
+      <div class="qhead"><div class="num">08</div><div><h2>Combien d’étudiants étaient inscrits en Licence à l’ISAAS Sfax durant l’année universitaire 2023–2024 ?</h2><div class="type"></div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q8" value="true"><span>3237</span></label>
+        <label class="option"><input type="radio" name="q8" value="false"><span>1816</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="B" data-explain="Le site officiel de l’ISAAS présente quatre départements académiques.">
+      <div class="qhead"><div class="num">09</div><div><h2>Combien de départements académiques l’ISAAS présente-t-il sur son site officiel ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q9" value="A"><span>Deux départements</span></label>
+        <label class="option"><input type="radio" name="q9" value="B"><span>Quatre départements</span></label>
+        <label class="option"><input type="radio" name="q9" value="C"><span>Cinq départements</span></label>
+        <label class="option"><input type="radio" name="q9" value="D"><span>Six départements</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="A,B,C,D" data-explain="Les quatre départements sont : Gestion ; Méthodes Quantitatives et Informatique ; Comptabilité, Droit et Fiscalité ; Économie Appliquée à la Gestion.">
+      <div class="qhead"><div class="num">10</div><div><h2>Quels sont les départements officiels de l’ISAAS ?</h2><div class="type">Choix multiple • sélectionne toutes les bonnes réponses</div></div></div>
+      <div class="options">
+        <label class="option"><input type="checkbox" name="q10" value="A"><span>Gestion</span></label>
+        <label class="option"><input type="checkbox" name="q10" value="B"><span>Méthodes Quantitatives et Informatique</span></label>
+        <label class="option"><input type="checkbox" name="q10" value="C"><span>Comptabilité, Droit et Fiscalité</span></label>
+        <label class="option"><input type="checkbox" name="q10" value="D"><span>Économie Appliquée à la Gestion</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <section class="question-card" data-correct="D" data-explain="Le manuel qualité de l’ISAAS indique environ 1 700 apprenants inscrits en licences et mastères pendant l’année universitaire 2023–2024. Ce chiffre est historique, pas nécessairement le nombre actuel.">
+      <div class="qhead"><div class="num">11</div><div><h2>Selon le manuel qualité de l’ISAAS, combien d’apprenants étaient inscrits en licences et mastères en 2023–2024 ?</h2><div class="type">Choix unique</div></div></div>
+      <div class="options">
+        <label class="option"><input type="radio" name="q11" value="A"><span>Environ 900 apprenants</span></label>
+        <label class="option"><input type="radio" name="q11" value="B"><span>Environ 1 200 apprenants</span></label>
+        <label class="option"><input type="radio" name="q11" value="C"><span>Environ 2 400 apprenants</span></label>
+        <label class="option"><input type="radio" name="q11" value="D"><span>Environ 1 700 apprenants</span></label>
+      </div><div class="feedback"></div>
+    </section>
+
+    <div class="actions">
+      <button class="primary" type="submit">Corriger le quiz</button>
+      <button class="secondary" type="button" id="reset">Recommencer</button>
+    </div>
+  </form>
+
+  <section id="result" aria-live="polite">
+    <h2>Résultat final</h2>
+    <div class="score" id="score">0 / 11</div>
+    <p id="message"></p>
+    <p class="note">Remarque : la question sur le nombre de places en 2026 reprend le chiffre du quiz précédent et doit être vérifiée dans le guide officiel d’orientation.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>ISAAS Sfax</strong> · Quiz pédagogique non officiel</p>
+  <p>Pour les informations officielles, consulte <a href="https://isaas.rnu.tn/fr" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">le site de l’ISAAS</a>.</p>
+  <p>Les chiffres historiques mentionnés dans certaines questions peuvent varier selon l’année universitaire.</p>
+</footer>
+<script>
+const form = document.getElementById('quiz');
+const cards = [...document.querySelectorAll('.question-card')];
+const progress = document.getElementById('progress');
+const answered = document.getElementById('answered');
+const result = document.getElementById('result');
+
+function selectedValues(card) {
+  return [...card.querySelectorAll('input:checked')].map(input => input.value).sort();
+}
+function updateProgress() {
+  const count = cards.filter(card => selectedValues(card).length > 0).length;
+  answered.textContent = count;
+  progress.style.width = (count / cards.length * 100) + '%';
+}
+form.addEventListener('change', updateProgress);
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  let score = 0;
+  let answeredCount = 0;
+  cards.forEach(card => {
+    const chosen = selectedValues(card);
+    const correct = card.dataset.correct.split(',').sort();
+    const feedback = card.querySelector('.feedback');
+    const isCorrect = chosen.length === correct.length && chosen.every((value, i) => value === correct[i]);
+    if (chosen.length) answeredCount++;
+    if (isCorrect) score++;
+    feedback.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
+    feedback.textContent = (isCorrect ? 'Bonne réponse. ' : 'Réponse à revoir. ') + card.dataset.explain;
+  });
+  document.getElementById('score').textContent = score + ' / ' + cards.length;
+  const pct = Math.round(score / cards.length * 100);
+  let message = '';
+  if (pct >= 90) message = 'Excellent ! Tu connais très bien l’ISAAS.';
+  else if (pct >= 70) message = 'Très bien ! Quelques détails restent à réviser.';
+  else if (pct >= 50) message = 'Bon début ! Relis les explications et réessaie.';
+  else message = 'Continue à réviser : tu peux recommencer le quiz autant de fois que tu veux.';
+  if (answeredCount < cards.length) message += ' Tu as répondu à ' + answeredCount + ' questions sur ' + cards.length + '.';
+  document.getElementById('message').textContent = message;
+  result.style.display = 'block';
+  result.scrollIntoView({behavior:'smooth',block:'center'});
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+  form.reset();
+  cards.forEach(card => {
+    const feedback = card.querySelector('.feedback');
+    feedback.className = 'feedback';
+    feedback.textContent = '';
+  });
+  result.style.display = 'none';
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+</body>
+</html>
