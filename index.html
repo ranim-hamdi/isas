@@ -75,6 +75,34 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 18px 28px}
 @media(max-width:560px){header{padding-top:24px}.question-card{padding:17px}.qhead{gap:9px}.num{min-width:33px;height:33px}.intro-grid{grid-template-columns:1fr}.brand img{width:54px;height:54px}.brand-name{font-size:.78rem}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 </style>
+
+<style>
+:root{--bg:#f3f6fb;--panel:#ffffff;--panel2:#ffffff;--text:#111827;--muted:#536174;--accent:#2563eb;--accent2:#60a5fa;--border:#d5deea;--good:#15803d;--bad:#b91c1c;--gold:#b7791f}
+body{background:#f3f6fb!important;color:#111827!important}
+header:before{background:linear-gradient(180deg,rgba(255,255,255,.28),#f3f6fb 98%),url('https://www.histoiredesfax.com/wp-content/uploads/2019/03/isaas.jpg') center 48%/cover no-repeat!important;opacity:.7}
+header:after{background:linear-gradient(110deg,rgba(255,255,255,.35),rgba(255,255,255,.12))!important}
+header p{color:#263449!important;text-shadow:none}
+.brand-name small{color:#334155!important}
+.hero-pill{background:#ffffffd9;color:#172033;border-color:#cbd5e1}
+.info-tile,.question-card,#result{background:#fff!important;border:1px solid #dbe3ee!important;box-shadow:0 12px 30px #1720330d!important;color:#111827}
+.info-tile span,.section-label,.quiz-intro p,.counter,.note,footer{color:#536174!important}
+.question-card{display:none!important;transform:none!important}
+.question-card.active{display:block!important}
+.qhead h2{color:#111827}
+.num{background:#dbeafe;color:#1d4ed8}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.option{height:100%;background:#f8fafc!important;border-color:#d5deea!important;color:#111827!important;align-items:center;min-height:62px}
+.option:hover{background:#eff6ff!important;border-color:#93b4e8!important}
+.option:has(input:checked){background:#dbeafe!important;border-color:#2563eb!important}
+.option input{accent-color:#2563eb}
+.feedback.good{background:#dcfce7!important;color:#166534!important;border:1px solid #86efac}
+.feedback.bad{background:#fee2e2!important;color:#991b1b!important;border:1px solid #fca5a5}
+.primary{background:#2563eb!important;color:white!important}.secondary{background:#fff!important;color:#1f2937!important;border:1px solid #cbd5e1!important}
+.progress-shell{background:#dbe3ef}
+#result{background:#fff!important}
+@media(max-width:560px){.options{grid-template-columns:1fr}.option{min-height:54px}}
+</style>
+
 </head>
 <body>
 <header>
@@ -224,60 +252,69 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 18px 28px}
   <p>Les chiffres historiques mentionnés dans certaines questions peuvent varier selon l’année universitaire.</p>
 </footer>
 <script>
-const form = document.getElementById('quiz');
-const cards = [...document.querySelectorAll('.question-card')];
-const progress = document.getElementById('progress');
-const answered = document.getElementById('answered');
-const result = document.getElementById('result');
-
-function selectedValues(card) {
-  return [...card.querySelectorAll('input:checked')].map(input => input.value).sort();
-}
-function updateProgress() {
-  const count = cards.filter(card => selectedValues(card).length > 0).length;
-  answered.textContent = count;
-  progress.style.width = (count / cards.length * 100) + '%';
-}
-form.addEventListener('change', updateProgress);
-
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  let score = 0;
-  let answeredCount = 0;
-  cards.forEach(card => {
-    const chosen = selectedValues(card);
-    const correct = card.dataset.correct.split(',').sort();
-    const feedback = card.querySelector('.feedback');
-    const isCorrect = chosen.length === correct.length && chosen.every((value, i) => value === correct[i]);
-    if (chosen.length) answeredCount++;
-    if (isCorrect) score++;
-    feedback.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
-    feedback.textContent = (isCorrect ? 'Bonne réponse. ' : 'Réponse à revoir. ') + card.dataset.explain;
-  });
-  document.getElementById('score').textContent = score + ' / ' + cards.length;
-  const pct = Math.round(score / cards.length * 100);
-  let message = '';
-  if (pct >= 90) message = 'Excellent ! Tu connais très bien l’ISAAS.';
-  else if (pct >= 70) message = 'Très bien ! Quelques détails restent à réviser.';
-  else if (pct >= 50) message = 'Bon début ! Relis les explications et réessaie.';
-  else message = 'Continue à réviser : tu peux recommencer le quiz autant de fois que tu veux.';
-  if (answeredCount < cards.length) message += ' Tu as répondu à ' + answeredCount + ' questions sur ' + cards.length + '.';
-  document.getElementById('message').textContent = message;
-  result.style.display = 'block';
-  result.scrollIntoView({behavior:'smooth',block:'center'});
+const form=document.getElementById('quiz');
+const cards=[...document.querySelectorAll('.question-card')];
+const progress=document.getElementById('progress');
+const answered=document.getElementById('answered');
+const result=document.getElementById('result');
+const actions=document.querySelector('.actions');
+let current=0, score=0, answeredCount=0, showingFeedback=false;
+// Show one question at a time; answer choices are arranged in two columns.
+cards.forEach((card,i)=>{
+  card.classList.remove('active');
+  const num=card.querySelector('.num'); if(num) num.textContent=String(i+1).padStart(2,'0');
 });
-
-document.getElementById('reset').addEventListener('click', () => {
-  form.reset();
-  cards.forEach(card => {
-    const feedback = card.querySelector('.feedback');
-    feedback.className = 'feedback';
-    feedback.textContent = '';
-  });
-  result.style.display = 'none';
+const nextBtn=document.createElement('button');
+nextBtn.type='button'; nextBtn.className='primary'; nextBtn.id='nextQuestion'; nextBtn.textContent='Vérifier ma réponse';
+actions.replaceChildren(nextBtn);
+function selectedValues(card){return [...card.querySelectorAll('input:checked')].map(input=>input.value).sort();}
+function updateProgress(){answered.textContent=answeredCount;progress.style.width=(answeredCount/cards.length*100)+'%';}
+function showQuestion(){
+  cards.forEach((card,i)=>card.classList.toggle('active',i===current));
+  result.style.display='none'; showingFeedback=false;
+  nextBtn.textContent='Vérifier ma réponse'; nextBtn.disabled=false;
+  const card=cards[current];
+  card.querySelectorAll('input').forEach(input=>input.disabled=false);
+  const fb=card.querySelector('.feedback');fb.className='feedback';fb.textContent='';
+  const counter=document.querySelector('.counter');
+  counter.innerHTML='<span id="answered">'+answeredCount+'</span> / '+cards.length+' questions répondues · Question '+(current+1)+'/'+cards.length;
   updateProgress();
-  window.scrollTo({top:0,behavior:'smooth'});
-});
+}
+function normalizeCorrect(card){return card.dataset.correct.split(',').sort();}
+function checkAnswer(){
+ const card=cards[current], chosen=selectedValues(card), correct=normalizeCorrect(card);
+ if(!chosen.length){nextBtn.textContent='Choisis au moins une réponse';return;}
+ const isCorrect=chosen.length===correct.length&&chosen.every((v,i)=>v===correct[i]);
+ answeredCount++; if(isCorrect)score++;
+ const fb=card.querySelector('.feedback');fb.className='feedback show '+(isCorrect?'good':'bad');
+ fb.textContent=(isCorrect?'✓ Bonne réponse ! ':'✗ Réponse incorrecte. ')+card.dataset.explain;
+ card.querySelectorAll('input').forEach(input=>input.disabled=true);
+ showingFeedback=true; updateProgress();
+ nextBtn.textContent=current===cards.length-1?'Voir mon résultat':'Question suivante →';
+}
+function showResult(){
+ cards.forEach(card=>card.classList.remove('active'));
+ result.style.display='block';document.getElementById('score').textContent=score+' / '+cards.length;
+ const pct=Math.round(score/cards.length*100);let message='';
+ if(pct>=90)message='Excellent ! Tu connais très bien l’ISAAS.';
+ else if(pct>=70)message='Très bien ! Quelques détails restent à réviser.';
+ else if(pct>=50)message='Bon début ! Relis les explications et réessaie.';
+ else message='Continue à réviser : tu peux recommencer le quiz autant de fois que tu veux.';
+ if(answeredCount<cards.length)message+=' Tu as répondu à '+answeredCount+' questions sur '+cards.length+'.';
+ document.getElementById('message').textContent=message;
+ actions.replaceChildren();
+ const restart=document.createElement('button');restart.type='button';restart.className='primary';restart.textContent='Recommencer le quiz';restart.addEventListener('click',resetQuiz);actions.appendChild(restart);
+ result.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetQuiz(){
+ form.reset();score=0;answeredCount=0;current=0;showingFeedback=false;
+ cards.forEach(card=>{card.querySelectorAll('input').forEach(input=>input.disabled=false);const fb=card.querySelector('.feedback');fb.className='feedback';fb.textContent='';});
+ const again=document.createElement('button');again.type='button';again.className='primary';again.id='nextQuestion';again.textContent='Vérifier ma réponse';again.addEventListener('click',advance);actions.replaceChildren(again);showQuestion();window.scrollTo({top:0,behavior:'smooth'});
+}
+function advance(){if(!showingFeedback){checkAnswer();return;}if(current<cards.length-1){current++;showQuestion();window.scrollTo({top:0,behavior:'smooth'});}else showResult();}
+nextBtn.addEventListener('click',advance);
+form.addEventListener('submit',e=>e.preventDefault());
+showQuestion();
 </script>
 </body>
 </html>
